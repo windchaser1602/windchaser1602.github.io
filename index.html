@@ -1,13 +1,463 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>背单词神器</title>
+    <title>目标成长助手</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: linear-gradient(135deg, #eef2ff 0%, #fff0f6 100%);
+            --card: rgba(255, 255, 255, 0.95);
+            --shadow: 0 12px 30px rgba(99, 102, 241, 0.18);
+            --primary: #6366f1;
+            --accent: #f97316;
+            --muted: #64748b;
+            --border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 20px 24px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 2.6rem);
+        }
+
+        header p {
+            margin: 10px auto 0;
+            max-width: 540px;
+            color: var(--muted);
+        }
+
+        main {
+            width: min(1040px, 92vw);
+            margin: 0 auto 60px;
+            display: grid;
+            gap: 22px;
+        }
+
+        section {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        section h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        label {
+            display: grid;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(255, 255, 255, 0.85);
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 88px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: var(--primary);
+            color: #fff;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(99, 102, 241, 0.35);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .summary-card {
+            margin-top: 18px;
+            display: grid;
+            gap: 12px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .summary-card strong {
+            color: var(--primary);
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.25s ease;
+        }
+
+        .stage-list,
+        .log-list,
+        .quote-box {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .stage-item,
+        .log-item {
+            border-radius: 14px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            border: var(--border);
+        }
+
+        .stage-item footer {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            font-style: italic;
+            color: rgba(100, 116, 139, 0.75);
+            padding: 12px 0;
+        }
+
+        .quote {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .quote strong {
+            color: var(--accent);
+        }
+
+        .quote-footer {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .inline-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .small-btn {
+            padding: 8px 14px;
+            background: #fff;
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: none;
+        }
+
+        @media (min-width: 900px) {
+            main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .goal-summary {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            section {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>
-        任小敏是傻子
-    </h1>
+    <header>
+        <h1>目标成长助手</h1>
+        <p>分阶段拆解目标、记录每日努力、让坚持更有力量。</p>
+    </header>
+    <main>
+        <section class="goal-summary">
+            <h2>🎯 我的终极目标</h2>
+            <form id="goal-form">
+                <label>
+                    目标名称
+                    <input id="goal-name" type="text" placeholder="例如：通过英语六级考试">
+                </label>
+                <label>
+                    动力来源
+                    <textarea id="goal-reason" placeholder="写下促使你坚持的理由"></textarea>
+                </label>
+                <div class="inline-group">
+                    <label>
+                        开始日期
+                        <input id="goal-start" type="date">
+                    </label>
+                    <label>
+                        完成日期
+                        <input id="goal-end" type="date">
+                    </label>
+                </div>
+                <button type="submit">保存目标蓝图</button>
+            </form>
+            <div class="summary-card" id="goal-summary-card">
+                <strong id="summary-name">还没有设置目标。</strong>
+                <span id="summary-reason">填写上方表单，让自己更有方向。</span>
+                <span id="summary-dates">计划时间：<strong>未设定</strong> → <strong>未设定</strong></span>
+                <div class="progress" aria-label="阶段完成度">
+                    <span id="progress-bar"></span>
+                </div>
+                <small id="progress-label">阶段完成度：0%</small>
+            </div>
+        </section>
+
+        <section>
+            <h2>🧭 阶段拆解与小目标</h2>
+            <form id="stage-form">
+                <label>
+                    阶段名称
+                    <input id="stage-name" type="text" placeholder="例如：词汇积累阶段">
+                </label>
+                <label>
+                    核心小目标
+                    <textarea id="stage-target" placeholder="明确这段时间最重要的任务"></textarea>
+                </label>
+                <div class="inline-group">
+                    <label>
+                        开始日期
+                        <input id="stage-start" type="date">
+                    </label>
+                    <label>
+                        完成日期
+                        <input id="stage-end" type="date">
+                    </label>
+                </div>
+                <button type="submit">添加阶段</button>
+            </form>
+            <div class="stage-list" id="stage-list">
+                <p class="empty-state">还没有阶段计划，先为目标规划第一步吧。</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>📒 每日学习打卡</h2>
+            <form id="log-form">
+                <div class="inline-group">
+                    <label>
+                        日期
+                        <input id="log-date" type="date">
+                    </label>
+                    <label>
+                        学习时长（小时）
+                        <input id="log-duration" type="text" placeholder="例如：2.5">
+                    </label>
+                </div>
+                <label>
+                    今天完成了什么？
+                    <textarea id="log-content" placeholder="记录亮点或反思，见证自己的成长"></textarea>
+                </label>
+                <button type="submit">记录今日坚持</button>
+            </form>
+            <div class="log-list" id="log-list">
+                <p class="empty-state">坚持打卡，你会看到每天的进步。</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>🌟 今日鼓励</h2>
+            <div class="quote-box">
+                <p class="quote" id="quote-text"></p>
+                <div class="quote-footer" id="quote-author"></div>
+                <div style="text-align: right;">
+                    <button class="small-btn" id="refresh-quote" type="button">换一句鼓励</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+        const goalForm = $('#goal-form');
+        const stageForm = $('#stage-form');
+        const logForm = $('#log-form');
+        const stageList = $('#stage-list');
+        const logList = $('#log-list');
+        const progressBar = $('#progress-bar');
+        const progressLabel = $('#progress-label');
+
+        const quotes = [
+            { text: '把每个小目标当作和梦想击掌，完成一个就离终点更近一步。', author: '目标成长助手' },
+            { text: '持续的今天会兑现更好的明天，坚持比灵感更可靠。', author: '每日鼓励语' },
+            { text: '当你清晰写下计划，就已经赢在起点。', author: '成长笔记' },
+            { text: '别怕走得慢，只要方向正确，你的脚步就在创造奇迹。', author: '耐心提醒' },
+            { text: '记录努力，是和过去的自己握手言和。', author: '自律手册' }
+        ];
+
+        const formatDate = (value) => {
+            if (!value) return '未设定';
+            const date = new Date(`${value}T00:00:00`);
+            return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+        };
+
+        const updateProgress = () => {
+            const checkboxes = $$('#stage-list input[type="checkbox"]');
+            const total = checkboxes.length;
+            const finished = checkboxes.filter((box) => box.checked).length;
+            const percent = total === 0 ? 0 : Math.round((finished / total) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressLabel.textContent = `阶段完成度：${percent}%`;
+        };
+
+        goalForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = $('#goal-name').value.trim();
+            const reason = $('#goal-reason').value.trim();
+            const start = $('#goal-start').value;
+            const end = $('#goal-end').value;
+
+            $('#summary-name').textContent = name || '请先填写一个清晰的目标。';
+            $('#summary-reason').textContent = reason || '写下动力来源，低谷时拿出来看看。';
+            $('#summary-dates').innerHTML = `计划时间：<strong>${formatDate(start)}</strong> → <strong>${formatDate(end)}</strong>`;
+        });
+
+        stageForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = $('#stage-name').value.trim();
+            const target = $('#stage-target').value.trim();
+            const start = $('#stage-start').value;
+            const end = $('#stage-end').value;
+
+            if (!name) return;
+
+            if (stageList.querySelector('.empty-state')) {
+                stageList.innerHTML = '';
+            }
+
+            const item = document.createElement('article');
+            item.className = 'stage-item';
+            item.innerHTML = `
+                <header>
+                    <strong>${name}</strong>
+                    <p>${target || '补充一个具体的小目标，让行动更聚焦。'}</p>
+                </header>
+                <footer>
+                    <span>开始：<strong>${formatDate(start)}</strong></span>
+                    <span>完成：<strong>${formatDate(end)}</strong></span>
+                    <label><input type="checkbox"> 阶段完成</label>
+                    <button type="button" class="small-btn remove-stage">删除</button>
+                </footer>
+            `;
+
+            item.querySelector('input').addEventListener('change', updateProgress);
+            item.querySelector('.remove-stage').addEventListener('click', () => {
+                item.remove();
+                if (!stageList.children.length) {
+                    stageList.innerHTML = '<p class="empty-state">还没有阶段计划，先为目标规划第一步吧。</p>';
+                }
+                updateProgress();
+            });
+
+            stageList.append(item);
+            stageForm.reset();
+            updateProgress();
+        });
+
+        logForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const date = $('#log-date').value;
+            const duration = $('#log-duration').value.trim();
+            const content = $('#log-content').value.trim();
+
+            if (!date || !content) return;
+
+            if (logList.querySelector('.empty-state')) {
+                logList.innerHTML = '';
+            }
+
+            const item = document.createElement('article');
+            item.className = 'log-item';
+            item.innerHTML = `
+                <strong>${formatDate(date)} · ${duration ? `${duration} 小时` : '时长未记录'}</strong>
+                <p>${content}</p>
+            `;
+
+            logList.prepend(item);
+            logForm.reset();
+        });
+
+        const showQuote = () => {
+            const { text, author } = quotes[Math.floor(Math.random() * quotes.length)];
+            $('#quote-text').innerHTML = `<strong>给今天的你：</strong>${text}`;
+            $('#quote-author').textContent = `—— ${author}`;
+        };
+
+        $('#refresh-quote').addEventListener('click', () => {
+            showQuote();
+        });
+
+        showQuote();
+    </script>
 </body>
 </html>
