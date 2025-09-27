@@ -1,13 +1,540 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>背单词神器</title>
+    <title>目标成长助手</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f2f7ff 0%, #fdf2ff 50%, #fffaf0 100%);
+            --primary: #5a67d8;
+            --secondary: #f56565;
+            --accent: #f6ad55;
+            --text-dark: #2d3748;
+            --text-light: #4a5568;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --border-radius: 18px;
+            --shadow-soft: 0 12px 35px rgba(94, 110, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Helvetica Neue", "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 40px 20px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.6rem;
+            letter-spacing: 0.08em;
+        }
+
+        header p {
+            margin-top: 10px;
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        main {
+            width: min(1080px, 92vw);
+            margin: 0 auto 60px;
+            display: grid;
+            gap: 24px;
+        }
+
+        section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 26px;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(12px);
+        }
+
+        section h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            padding: 12px 14px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.85);
+            transition: border 0.2s ease;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 84px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.15);
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 25px rgba(90, 103, 216, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(90, 103, 216, 0.28);
+        }
+
+        .summary-card {
+            display: grid;
+            gap: 14px;
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(90, 103, 216, 0.08);
+        }
+
+        .summary-card strong {
+            color: var(--primary);
+        }
+
+        .progress {
+            background: rgba(90, 103, 216, 0.1);
+            border-radius: 999px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.25s ease;
+        }
+
+        .stages {
+            display: grid;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stage-card {
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(90, 103, 216, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            display: grid;
+            gap: 8px;
+        }
+
+        .stage-card header {
+            padding: 0;
+            text-align: left;
+        }
+
+        .stage-card h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .stage-card small {
+            color: var(--text-light);
+        }
+
+        .stage-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .stage-card footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stage-card textarea {
+            background: rgba(247, 250, 252, 0.9);
+        }
+
+        .stage-card .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .log-list,
+        .encourage-box {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .log-item {
+            border-left: 4px solid var(--accent);
+            background: rgba(255, 255, 255, 0.92);
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .log-item h4 {
+            margin: 0 0 4px;
+            font-size: 1rem;
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-light);
+        }
+
+        .quote strong {
+            color: var(--secondary);
+        }
+
+        .quote-footer {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-align: right;
+        }
+
+        .quote-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .small-btn {
+            background: #fff;
+            color: var(--primary);
+            border: 1px solid rgba(90, 103, 216, 0.3);
+            padding: 8px 14px;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            color: rgba(74, 85, 104, 0.7);
+            font-style: italic;
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        @media (min-width: 900px) {
+            main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            section.goal-summary {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header h1 {
+                font-size: 2.1rem;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>
-        任小敏是傻子
-    </h1>
+    <header>
+        <h1>目标成长助手</h1>
+        <p>把宏大的梦想拆解成可实现的小目标，坚持每天一点点，就能收获惊喜的改变。</p>
+    </header>
+    <main>
+        <section class="goal-summary">
+            <h2>🎯 我的终极目标</h2>
+            <form id="goal-form">
+                <label>
+                    目标名称
+                    <input type="text" id="goal-name" placeholder="例如：通过英语六级考试">
+                </label>
+                <label>
+                    目标理由（保持动力的源泉）
+                    <textarea id="goal-reason" placeholder="写下你最真实的初心，疲惫时拿出来看看"></textarea>
+                </label>
+                <div style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+                    <label>
+                        开始日期
+                        <input type="date" id="goal-start">
+                    </label>
+                    <label>
+                        目标达成日期
+                        <input type="date" id="goal-end">
+                    </label>
+                </div>
+                <button type="submit">保存我的目标蓝图</button>
+            </form>
+            <div class="summary-card" id="goal-summary">
+                <strong id="summary-name">还没有记录目标。</strong>
+                <span class="summary-text" id="summary-text">完成上方表单，我们将帮助你快速梳理目标方向。</span>
+                <div id="summary-dates">计划时间：<strong>未设定</strong> → <strong>未设定</strong></div>
+                <div class="progress" aria-label="阶段完成度">
+                    <span id="progress-bar"></span>
+                </div>
+                <small id="progress-label">阶段完成度：0%</small>
+            </div>
+        </section>
+
+        <section>
+            <h2>🧭 阶段拆解与小目标</h2>
+            <form id="stage-form">
+                <label>
+                    阶段名称
+                    <input type="text" id="stage-name" placeholder="例如：词汇积累阶段">
+                </label>
+                <label>
+                    核心小目标
+                    <textarea id="stage-target" placeholder="写下该阶段要完成的关键任务或里程碑"></textarea>
+                </label>
+                <div style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+                    <label>
+                        开始日期
+                        <input type="date" id="stage-start">
+                    </label>
+                    <label>
+                        完成日期
+                        <input type="date" id="stage-end">
+                    </label>
+                </div>
+                <button type="submit">添加新阶段</button>
+            </form>
+            <div class="stages" id="stage-list">
+                <p class="empty-state">还没有阶段计划，快来制定第一步吧！</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>📒 每日学习打卡</h2>
+            <form id="log-form">
+                <div style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+                    <label>
+                        日期
+                        <input type="date" id="log-date">
+                    </label>
+                    <label>
+                        学习时长（小时）
+                        <input type="text" id="log-duration" placeholder="例如：2.5">
+                    </label>
+                </div>
+                <label>
+                    今天完成了什么？
+                    <textarea id="log-content" placeholder="记录你的学习亮点或复盘思考"></textarea>
+                </label>
+                <button type="submit">记录今天的努力</button>
+            </form>
+            <div class="log-list" id="log-list">
+                <p class="empty-state">每天一点点记录，你会看到自己的坚持。</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>🌟 每日鼓励</h2>
+            <div class="encourage-box">
+                <p class="quote" id="quote-text"></p>
+                <div class="quote-footer" id="quote-author"></div>
+                <div class="quote-actions">
+                    <button class="small-btn" id="refresh-quote" type="button">换一句鼓励</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const goalForm = document.getElementById('goal-form');
+        const goalSummary = document.getElementById('goal-summary');
+        const summaryName = document.getElementById('summary-name');
+        const summaryText = document.getElementById('summary-text');
+        const summaryDates = document.getElementById('summary-dates');
+        const progressBar = document.getElementById('progress-bar');
+        const progressLabel = document.getElementById('progress-label');
+        const stageForm = document.getElementById('stage-form');
+        const stageList = document.getElementById('stage-list');
+        const logForm = document.getElementById('log-form');
+        const logList = document.getElementById('log-list');
+        const quoteText = document.getElementById('quote-text');
+        const quoteAuthor = document.getElementById('quote-author');
+        const refreshQuote = document.getElementById('refresh-quote');
+
+        const quotes = [
+            { text: '你愿意为自己的人生负责，就会发现每一次坚持都在悄悄筑起未来。', author: '目标成长助手' },
+            { text: '别把今天的努力交给明天，脚踏实地的你终会闪闪发光。', author: '每日鼓励语' },
+            { text: '小目标是通往大梦想的阶梯，每一个都值得认真完成。', author: '成长笔记' },
+            { text: '带着热爱和好奇探索未知，你会和更优秀的自己相遇。', author: '学习日记' },
+            { text: '当你觉得慢的时候，正是扎根成长的时候。', author: '耐心提醒' }
+        ];
+
+        const formatDate = (value) => {
+            if (!value) return '未设定';
+            const date = new Date(value + 'T00:00:00');
+            return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+        };
+
+        const updateProgress = () => {
+            const checkboxes = stageList.querySelectorAll('input[type="checkbox"]');
+            const total = checkboxes.length;
+            const completed = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressLabel.textContent = `阶段完成度：${percent}%`;
+        };
+
+        goalForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('goal-name').value.trim();
+            const reason = document.getElementById('goal-reason').value.trim();
+            const start = document.getElementById('goal-start').value;
+            const end = document.getElementById('goal-end').value;
+
+            if (!name) {
+                summaryName.textContent = '请先填写目标名称。';
+                summaryText.textContent = '目标越清晰，行动越有方向。';
+                summaryDates.innerHTML = '计划时间：<strong>未设定</strong> → <strong>未设定</strong>';
+                return;
+            }
+
+            summaryName.textContent = name;
+            summaryText.textContent = reason || '还没有写下初心，别忘了补充一段鼓励自己的话。';
+            summaryDates.innerHTML = `计划时间：<strong>${formatDate(start)}</strong> → <strong>${formatDate(end)}</strong>`;
+        });
+
+        stageForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('stage-name').value.trim();
+            const target = document.getElementById('stage-target').value.trim();
+            const start = document.getElementById('stage-start').value;
+            const end = document.getElementById('stage-end').value;
+
+            if (!name) return;
+
+            if (stageList.querySelector('.empty-state')) {
+                stageList.innerHTML = '';
+            }
+
+            const stageCard = document.createElement('article');
+            stageCard.className = 'stage-card';
+            stageCard.innerHTML = `
+                <header>
+                    <h3>${name}</h3>
+                    <small>${target || '为这个阶段写下具体的小目标，可以更好地聚焦行动。'}</small>
+                </header>
+                <div class="stage-meta">
+                    <span>开始：<strong>${formatDate(start)}</strong></span>
+                    <span>完成：<strong>${formatDate(end)}</strong></span>
+                </div>
+                <footer>
+                    <label class="checkbox">
+                        <input type="checkbox" />
+                        阶段目标已完成
+                    </label>
+                    <button type="button" class="small-btn remove-stage">删除</button>
+                </footer>
+            `;
+
+            const checkbox = stageCard.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', updateProgress);
+
+            stageCard.querySelector('.remove-stage').addEventListener('click', () => {
+                stageCard.remove();
+                if (!stageList.children.length) {
+                    stageList.innerHTML = '<p class="empty-state">还没有阶段计划，快来制定第一步吧！</p>';
+                }
+                updateProgress();
+            });
+
+            stageList.appendChild(stageCard);
+            updateProgress();
+
+            stageForm.reset();
+        });
+
+        logForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const date = document.getElementById('log-date').value;
+            const duration = document.getElementById('log-duration').value.trim();
+            const content = document.getElementById('log-content').value.trim();
+
+            if (!date || !content) return;
+
+            if (logList.querySelector('.empty-state')) {
+                logList.innerHTML = '';
+            }
+
+            const item = document.createElement('article');
+            item.className = 'log-item';
+            item.innerHTML = `
+                <h4>${formatDate(date)} · ${duration ? `${duration} 小时` : '时长未记录'}</h4>
+                <p>${content}</p>
+            `;
+
+            logList.prepend(item);
+            logForm.reset();
+        });
+
+        const showRandomQuote = () => {
+            const { text, author } = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteText.innerHTML = `<strong>今天的提醒：</strong>${text}`;
+            quoteAuthor.textContent = `—— ${author}`;
+        };
+
+        refreshQuote.addEventListener('click', () => {
+            showRandomQuote();
+            refreshQuote.blur();
+        });
+
+        showRandomQuote();
+    </script>
 </body>
 </html>
